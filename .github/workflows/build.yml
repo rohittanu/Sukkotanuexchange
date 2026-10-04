@@ -5,13 +5,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Unzip website
+      - name: Unzip and Build Website
         run: |
-          unzip -o Property-Marketplace.zip -d temp-www || true
-          mkdir -p www
-          cp -r temp-www/* www/ 2>/dev/null || true
-          cp -r temp-www/Property-Marketplace/* www/ 2>/dev/null || true
-          ls www
+          unzip -o Property-Marketplace.zip -d temp
+          PROJECT_DIR=$(find temp -name "package.json" | head -1 | xargs dirname)
+          echo "Project at $PROJECT_DIR"
+          cd $PROJECT_DIR
+          npm install
+          npm run build || npm run dist || echo "no build script"
+          ls -l
+          # find built folder
+          if [ -d "dist" ]; then BUILT="dist"; elif [ -d "build" ]; then BUILT="build"; elif [ -d "out" ]; then BUILT="out"; else BUILT="."; fi
+          echo "Built folder $BUILT"
+          mkdir -p $GITHUB_WORKSPACE/www
+          cp -r $BUILT/* $GITHUB_WORKSPACE/www/ || cp -r * $GITHUB_WORKSPACE/www/
+          ls -l $GITHUB_WORKSPACE/www
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
@@ -33,5 +41,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SUKKO-APK
+          name: SUKKO-APK-FINAL
           path: SUKKO/platforms/android/app/build/outputs/apk/debug/app-debug.apk

@@ -7,18 +7,17 @@ jobs:
       - uses: actions/checkout@v4
       - name: Unzip website
         run: |
-          unzip -o Property-Marketplace.zip -d temp-www
+          unzip -o Property-Marketplace.zip -d temp-www || true
           mkdir -p www
-          cp -r temp-www/* www/ 2>/dev/null || cp -r temp-www/Property-Marketplace/* www/ || true
+          cp -r temp-www/* www/ 2>/dev/null || true
+          cp -r temp-www/Property-Marketplace/* www/ 2>/dev/null || true
           ls www
-      - name: Setup Java
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-      - name: Setup Node
+      - name: Setup Node 18
         uses: actions/setup-node@v4
         with:
           node-version: 18
@@ -30,7 +29,7 @@ jobs:
           cp -r www/* SUKKO/www/
           cd SUKKO
           cordova platform add android
-          cordova build android --debug
+          cordova build android --debug -- --packageType=apk
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:

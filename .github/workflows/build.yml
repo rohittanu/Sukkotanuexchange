@@ -18,10 +18,9 @@ jobs:
           unzip -o Property-Marketplace.zip -d temp
           cd temp/Property-Marketplace
           ls
-          pnpm install
+          pnpm install --no-frozen-lockfile
           pnpm run build || npm run build
           ls
-          # find dist folder
           DIST=$(find. -type d -name "dist" | head -1)
           echo "DIST $DIST"
           mkdir -p $GITHUB_WORKSPACE/www
@@ -35,14 +34,4 @@ jobs:
       - name: Build APK
         run: |
           npm i -g cordova
-          cordova create SUKKO com.sukko.app SUKKO
-          rm -rf SUKKO/www/*
-          cp -r www/* SUKKO/www/
-          cd SUKKO
-          cordova platform add android
-          cordova build android --debug -- --packageType=apk
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: SUKKO-APK-WORKING
-          path: SUKKO/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          cord

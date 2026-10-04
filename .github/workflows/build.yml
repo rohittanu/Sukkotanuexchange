@@ -1,0 +1,32 @@
+name: Build SUKKO APK
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Unzip website
+        run: unzip Property-Marketplace.zip -d www
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Build APK
+        run: |
+          npm i -g cordova
+          cordova create SUKKO com.sukko.app SUKKO
+          rm -rf SUKKO/www/*
+          cp -r www/* SUKKO/www/
+          cd SUKKO
+          cordova platform add android
+          cordova build android --debug
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: SUKKO-APK
+          path: SUKKO/platforms/android/app/build/outputs/apk/debug/app-debug.apk
